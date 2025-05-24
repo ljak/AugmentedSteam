@@ -20,7 +20,7 @@ import AugmentedSteamApiFacade from "@Content/Modules/Facades/AugmentedSteamApiF
 import type { TStorePageData } from "@Background/Modules/AugmentedSteam/_types";
 import WishlistHLTBDisplay from "./Components/WishlistHLTBDisplay.svelte";
 import WishlistButton from "./Components/WishlistButton.svelte";
-import { getMenuNode } from "./Menu/WishlistMenu"; // Corrected path
+import { getMenuNode } from "./Components/WishlistMenu"; // Corrected path
 import { L } from "@Core/Localization/Localization";
 import { __sort_by_hltb } from "@Strings/_strings";
 

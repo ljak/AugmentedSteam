@@ -7,19 +7,45 @@ import fs from "node:fs/promises";
 import YAML from "yaml";
 import ManifestBuilder from "./manifestBuilder.mjs";
 import manifestPreprocess from "./manifestPreprocess.mjs";
+import { fileURLToPath } from 'url'; // Added
+import { dirname as pathDirname } from 'path'; // Added and aliased
 
-const __dirname = import.meta.dirname;
+const __filename = fileURLToPath(import.meta.url); // Added
+const __dirname = pathDirname(__filename); // Modified
+console.log(`Initial __dirname = ${__dirname}`);
 
 function* contentScripts(srcDir, distDir, metafile, contentScriptsMap) {
     let outputMap = new Map();
     for (let [outfilePath, output] of Object.entries(metafile.outputs)) {
+        // Add these logs:
+        console.log(`Processing metafile output: outfilePath = ${outfilePath}`);
+        console.log(`output.entryPoint = ${output.entryPoint}`);
+        console.log(`output.cssBundle = ${output.cssBundle}`);
+        console.log(`srcDir = ${srcDir}, distDir = ${distDir}`);
+
         if (!output.entryPoint) {
+            console.log(`Skipping due to missing entryPoint for ${outfilePath}`);
             continue;
         }
+        // Log before path.relative calls
+        console.log(`About to call path.relative for entryPoint: srcDir=${srcDir}, entryPoint=${output.entryPoint}`);
+        const relativeEntryPoint = path.relative(srcDir, output.entryPoint);
+        console.log(`Relative entryPoint: ${relativeEntryPoint}`);
+        
+        console.log(`About to call path.relative for outfilePath: distDir=${distDir}, outfilePath=${outfilePath}`);
+        const relativeOutJs = path.relative(distDir, outfilePath).replaceAll("\\", "/");
+        console.log(`Relative outJs: ${relativeOutJs}`);
 
-        outputMap.set(path.relative(srcDir, output.entryPoint), {
-            js: [path.relative(distDir, outfilePath).replaceAll("\\", "/")],
-            css: output.cssBundle ? [path.relative(distDir, output.cssBundle).replaceAll("\\", "/")] : []
+        let relativeOutCss = [];
+        if (output.cssBundle) {
+            console.log(`About to call path.relative for cssBundle: distDir=${distDir}, cssBundle=${output.cssBundle}`);
+            relativeOutCss.push(path.relative(distDir, output.cssBundle).replaceAll("\\", "/"));
+            console.log(`Relative outCss: ${relativeOutCss[0]}`);
+        }
+
+        outputMap.set(relativeEntryPoint, {
+            js: [relativeOutJs],
+            css: relativeOutCss
         });
     }
 
@@ -61,9 +87,21 @@ async function buildChangelog(path) {
 }
 
 export default async function(options) {
+    console.log(`Options received: ${JSON.stringify(options)}`);
+
+    // Focus logging here
+    console.log(`Debug: typeof __dirname = ${typeof __dirname}, __dirname = ${__dirname}`);
+    console.log(`Debug: typeof "../../" = ${typeof "../../"}`);
     const rootDir = path.resolve(__dirname, "../../");
+    console.log(`After rootDir: rootDir = ${rootDir}`);
+
+    console.log(`Before srcDir: rootDir = ${rootDir}`);
     const srcDir = path.resolve(rootDir, "src");
+    console.log(`After srcDir: srcDir = ${srcDir}`);
+
+    console.log(`Before distDir: rootDir = ${rootDir}, options.dev = ${options.dev}, options.browser = ${options.browser}`);
     const distDir = path.resolve(rootDir, `dist/${options.dev ? "dev" : "prod"}.${options.browser}`);
+    console.log(`After distDir: distDir = ${distDir}`);
 
     try {
         await fs.rm(distDir, {recursive: true});
