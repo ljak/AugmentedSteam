@@ -885,5 +885,5 @@
         "zm": "Zambia",
         "zw": "Zimbabwe"
     },
-    "__sort_by_hltb": "Sort by HLTB"
+    "sort_by_hltb": "Sort by HLTB"
 }

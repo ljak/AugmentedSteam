@@ -22,7 +22,7 @@ import WishlistHLTBDisplay from "./Components/WishlistHLTBDisplay.svelte";
 import WishlistButton from "./Components/WishlistButton.svelte";
 import { getMenuNode } from "./Components/WishlistMenu"; // Corrected path
 import { L } from "@Core/Localization/Localization";
-import { __sort_by_hltb } from "@Strings/_strings";
+import { sort_by_hltb } from "@Strings/_strings"; // Corrected import
 
 export interface WishlistEntry {
     appid: number,
@@ -109,7 +109,7 @@ export default class CWishlist extends Context {
                 const hltbSortButton = new WishlistButton({
                     target: menuNode.getTarget(hltbSortButtonTargetPosition),
                     props: {
-                        label: L(__sort_by_hltb) 
+                        label: L(sort_by_hltb)  // Corrected usage
                     }
                 });
 
